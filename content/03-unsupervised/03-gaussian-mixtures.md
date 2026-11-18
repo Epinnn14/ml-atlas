@@ -129,6 +129,66 @@ def test_weights_sum_to_one():
 <!-- hint: With `Nc = R.sum(0)`, the new mean is `(R * x[:, None]).sum(0) / Nc`. -->
 <!-- /exercise -->
 
+<!-- exercise: resp-bic | Responsibilities and BIC -->
+Write `responsibilities(x, pi, mu, var)` for 1-D data returning the `(n, K)` matrix $r_{ic}$, computed in log space so that points far from every component do not produce `nan`. Then write `bic_1d(log_lik, K, n)` for a 1-D mixture, which has $p = 3K - 1$ free parameters ($K$ means, $K$ variances, $K - 1$ weights).
+
+~~~python starter
+import numpy as np
+
+def responsibilities(x, pi, mu, var):
+    raise NotImplementedError
+
+def bic_1d(log_lik, K, n):
+    raise NotImplementedError
+~~~
+
+~~~python solution
+import numpy as np
+
+def responsibilities(x, pi, mu, var):
+    x = np.asarray(x, float)[:, None]
+    L = np.log(pi) - 0.5 * np.log(2 * np.pi * var) - (x - mu) ** 2 / (2 * var)
+    L = L - L.max(axis=1, keepdims=True)
+    R = np.exp(L)
+    return R / R.sum(axis=1, keepdims=True)
+
+def bic_1d(log_lik, K, n):
+    return float(-2 * log_lik + (3 * K - 1) * np.log(n))
+~~~
+
+~~~python tests
+import numpy as np
+
+pi, mu, var = np.array([0.5, 0.5]), np.array([-2.0, 2.0]), np.array([1.0, 1.0])
+
+def test_rows_sum_to_one():
+    """each point's responsibilities sum to one"""
+    R = responsibilities(np.linspace(-5, 5, 11), pi, mu, var)
+    assert R.shape == (11, 2) and approx(R.sum(1), np.ones(11))
+
+def test_midpoint():
+    """a point halfway between equal components is split 50/50"""
+    assert approx(responsibilities(np.array([0.0]), pi, mu, var), [[0.5, 0.5]])
+
+def test_bayes_rule():
+    """matches prior times density, normalised"""
+    x = np.array([0.7])
+    dens = pi * np.exp(-(x[0] - mu) ** 2 / 2) / np.sqrt(2 * np.pi)
+    assert approx(responsibilities(x, pi, mu, var)[0], dens / dens.sum())
+
+def test_far_point_no_nan():
+    """a point far from both components still gets valid responsibilities"""
+    R = responsibilities(np.array([1e4]), pi, mu, var)
+    assert not np.isnan(R).any() and approx(R, [[0.0, 1.0]])
+
+def test_bic():
+    """BIC = -2 log L + (3K - 1) log n"""
+    assert approx(bic_1d(-500.0, 2, 1000), 1000.0 + 5 * np.log(1000))
+~~~
+
+<!-- hint: Subtract each row's maximum log-value before exponentiating, then normalise the rows. -->
+<!-- /exercise -->
+
 <!-- quiz -->
 1. A point lies exactly halfway between two identical, equally weighted components. What are its responsibilities?
    - [ ] 1 for one component, 0 for the other
