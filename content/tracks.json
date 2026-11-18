@@ -1,0 +1,7 @@
+[
+  { "id": "foundations", "title": "Foundations", "blurb": "The maths and NumPy every model is built from: vectors, gradients, probability and how learning from data works." },
+  { "id": "supervised", "title": "Supervised learning", "blurb": "Predicting a label from features: linear and logistic models, trees, ensembles, SVMs and how to evaluate them honestly." },
+  { "id": "unsupervised", "title": "Unsupervised learning", "blurb": "Finding structure without labels: clustering, mixtures, dimensionality reduction and anomaly detection." },
+  { "id": "deep-learning", "title": "Deep learning", "blurb": "Neural networks from a single neuron to Transformers and diffusion models, every layer written by hand." },
+  { "id": "advanced", "title": "Advanced topics", "blurb": "What senior practitioners reach for: Bayesian methods, time series, recommenders, reinforcement learning, graphs, LLMs and ML in production." }
+]
