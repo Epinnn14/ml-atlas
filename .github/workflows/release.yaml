@@ -1,0 +1,34 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: .cache/pyodide-*.tar.bz2
+          key: pyodide-${{ hashFiles('package-lock.json') }}
+      - run: npm run offline
+      - run: npm run build
+      - run: npm run package
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: ML Atlas ${{ github.ref_name }}
+          files: ml-atlas-site.zip
+          body: |
+            **Offline copy:** download `ml-atlas-site.zip`, unzip it, and double-click `start.bat` (Windows) or run `./start.sh` (macOS, Linux). Needs Python 3 only to serve the files; everything else, including Python with NumPy for the exercises, runs in your browser with no internet connection.
+
+            Online version: https://epinnn14.github.io/ml-atlas/

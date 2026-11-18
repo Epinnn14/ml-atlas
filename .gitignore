@@ -3,3 +3,5 @@ dist/
 .cache/
 public/pyodide/
 *.log
+ml-atlas-site.zip
+ml-atlas-site/

@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Cache the Pyodide release
+        uses: actions/cache@v4
+        with:
+          path: .cache/pyodide-*.tar.bz2
+          key: pyodide-${{ hashFiles('package-lock.json') }}
+      - name: Keep numpy and matplotlib local
+        run: npm run offline
+      - name: Lint lessons, type-check and build
+        run: npm run build
+      - name: Every solution passes its tests, every starter fails
+        run: npm run check
+      - name: Browser test of every lesson
+        run: |
+          npx playwright install --with-deps chromium
+          npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: .cache/shots

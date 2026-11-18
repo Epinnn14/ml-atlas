@@ -229,7 +229,9 @@ details summary { cursor: pointer; font-size: 14px; color: var(--muted); }
 
 .question { border: 0; margin: 14px 0 0; padding: 0; }
 .question + .question { border-top: 1px solid var(--rule); padding-top: 14px; }
-.question legend { font-weight: 600; padding: 0; margin-bottom: 8px; }
+/* a floated legend leaves the fieldset border alone, so the separator line does not cut through it */
+.question legend { float: left; width: 100%; font-weight: 600; padding: 0; margin-bottom: 8px; }
+.question legend + * { clear: both; }
 .qn { color: var(--muted); }
 .option { display: flex; align-items: flex-start; gap: 10px; padding: 7px 10px; border: 1px solid var(--rule); border-radius: var(--r-sm); margin: 6px 0; cursor: pointer; }
 .option:hover { border-color: var(--rule-strong); }
